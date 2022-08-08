@@ -1,0 +1,10 @@
+#!/bin/sh
+
+# Hook script to verify what is about to be pushed.
+# Called by "git push" after it has checked the remote status,
+# but before anything has been pushed.
+# If this script exits with a non-zero status nothing will be pushed.
+#
+# This prevent push of commits when the test fails
+
+./gradlew test

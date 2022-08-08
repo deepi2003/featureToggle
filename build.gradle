@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'checkstyle'
+    id "org.sonarqube" version "3.0"
+    id 'jacoco'
+    id "io.snyk.gradle.plugin.snykplugin" version "0.4"
+}
+
+group 'org.deepti'
+version System.getenv('LATEST_VERSION')
+sourceCompatibility = '1.11'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+test{
+    useJUnitPlatform()
+}
+
+checkstyle {
+    configDir(project.file('./config/checkstyle'))
+    toolVersion = '8.31'
+}
+
+String getProjectProperty(String propertyName) {
+    String propertyValue = "null"
+    if (hasProperty(propertyName)) {
+        propertyValue = this.properties[propertyName]
+    }
+    return propertyValue
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.9
+            }
+            excludes =[
+            ]
+        }
+    }
+
+}
+
+test.finalizedBy jacocoTestReport
+check.dependsOn jacocoTestCoverageVerification
+
+
+dependencies {
+    implementation 'org.apache.kafka:kafka-streams:2.5.0'
+    implementation 'org.springframework.boot:spring-boot-autoconfigure:2.3.3.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-web:2.3.3.RELEASE'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.3'
+    implementation 'ch.qos.logback:logback-core:1.2.3'
+    implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    testCompile 'org.junit.vintage:junit-vintage-engine:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testImplementation 'org.springframework:spring-test:5.2.8.RELEASE'
+    testImplementation 'org.springframework.boot:spring-boot-test:2.3.3.RELEASE'
+    testImplementation 'org.mockito:mockito-core:3.3.3'
+    testImplementation 'org.mockito:mockito-junit-jupiter:3.3.3'
+    testImplementation 'org.apache.kafka:kafka-streams-test-utils:2.5.1'
+    testImplementation 'org.apache.kafka:kafka-streams:2.5.0:test'
+    testImplementation 'org.apache.kafka:kafka-clients:2.5.0:test'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
+apply plugin: 'maven-publish'
+
